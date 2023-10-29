@@ -16,5 +16,5 @@ if __name__ == '__main__':
 
     # конвертация данных в более удобный вид c вычислением p_1 и p_2
     calc_jobs = list_to_jobs(matrix)
-    p = petrov(jobs=calc_jobs)
+    petrov_schedule = petrov(jobs=calc_jobs)
 
