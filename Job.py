@@ -1,12 +1,14 @@
 from typing import NamedTuple
 from dataclasses import dataclass
 
+
 @dataclass
 class Job:
     index: int
     processing_times: list[float] # длительности обработки на каждой из машин
     p_1: float # параметр для правил Петрова
     p_2: float # параметр для правил Петрова
+
 
 def list_to_jobs(matrix: list[list[float]]) -> list[Job]:
     '''Конвертация матрицы длительностей обработки в массив объектов Job'''
@@ -20,6 +22,7 @@ def list_to_jobs(matrix: list[list[float]]) -> list[Job]:
     # вычисление p_1 и p_2
     calc_jobs = calculate_params(jobs)
     return calc_jobs
+
 
 def calculate_params(jobs: list[Job]) -> list[Job]:
     '''Вычисляет p_1, p_2 для каждой из работ'''
@@ -41,6 +44,7 @@ def calculate_params(jobs: list[Job]) -> list[Job]:
 
     return jobs_c
 
+
 def jobs_copy(jobs: list[Job]) -> list[Job]:
     '''Копирование списка работ'''
     jobs_copy = []
@@ -50,3 +54,22 @@ def jobs_copy(jobs: list[Job]) -> list[Job]:
                              p_1=job.p_1,
                              p_2=job.p_2))
     return jobs_copy
+
+
+def time(jobs: list[Job]) -> float:
+    '''Возвращает длительность технологического процесса'''
+    pass
+
+
+def standing(jobs: list[Job]) -> float:
+    '''Возвращает суммарное время простоя машин'''
+    pass
+
+
+def waiting(jobs: list[Job]) -> float:
+    '''Возвращает суммарное время ожидания работ'''
+    pass
+
+def downtime(jobs: list[Job]) -> list[list[float]]
+    '''Возвращает список простоев для машин'''
+    pass

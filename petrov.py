@@ -1,13 +1,16 @@
-from Job import Job, jobs_copy
+from Job import Job, jobs_copy 
 import math
 
-def petrov(jobs: list[Job]) -> list[Job]:
-    '''Получение лучшего расписания по правилам Петрова'''
+def petrov(jobs: list[Job]) -> list[list[Job]]:
+    '''Получение расписаний по правилам Петрова''' 
     D_0, D_1, D_2, D_01 = D_sets(jobs)
     D_012 = first_petrov(D_01=D_01, D_2=D_2)
-    D = second_petrov(D_012=D_012)
+    D = second_petrov(D_012=D_012) 
     third = third_petrov(D_1=D_1, D_0=D_0, D_2=D_2)
     fourth = fourth_petrov(D_1=D_1, D_2=D_2, D_0=D_0, D_01=D_01)
+
+    return [D_012, D, third, fourth]
+
 
 def D_sets(jobs: list[Job]) -> tuple[list[Job], list[Job],
                                      list[Job], list[Job]]:
@@ -27,6 +30,7 @@ def D_sets(jobs: list[Job]) -> tuple[list[Job], list[Job],
     D_01 = [*D_0, *D_1]
     return (D_0, D_1, D_2, D_01)
 
+
 def first_petrov(D_01: list[Job], D_2: list[Job]) -> list[Job]:
     '''Ранжирование D_01 по возарастанию p_1 и D_2 по убыванию p_2 c последующим
     объединением D_012 = D_01 + D_2''' # сортировка D_01 по возрастанию p_1
@@ -36,9 +40,11 @@ def first_petrov(D_01: list[Job], D_2: list[Job]) -> list[Job]:
     D_012 = [*sorted_D_01, *sorted_D_2]
     return D_012
 
+
 def second_petrov(D_012: list[Job]) -> list[Job]:
     '''Ранжирование D_012 в порядке убывания lambda = p_2 - p_1'''
     return sorted(D_012, key=lambda job: job.p_2 - job.p_1, reverse=True)
+
 
 def third_petrov(D_1: list[Job], D_0: list[Job], D_2: list[Job]) -> list[Job]:
     '''Ранжирование D_1 по возрастанию p_1, D_0 по возрастанию p_1, D_2 по убыванию p_2.
@@ -47,6 +53,7 @@ def third_petrov(D_1: list[Job], D_0: list[Job], D_2: list[Job]) -> list[Job]:
     sorted_D_0 = sorted(D_0, key=lambda job: job.p_1)
     sorted_D_2 = sorted(D_2, key=lambda job: job.p_2, reverse=True)
     return [*sorted_D_1, *sorted_D_0, *sorted_D_2]
+
 
 def fourth_petrov(D_1: list[Job], D_2: list[Job], 
                   D_0: list[Job], D_01: list[Job]) -> list[Job]:
@@ -68,6 +75,7 @@ def fourth_petrov(D_1: list[Job], D_2: list[Job],
         else:
             couples_D_1.append([D_1_sorted_p1[i], None])
     couples_D_1 = couples_D_1[:math.ceil(len(D_1)/2)]
+    couples_D_1[0][0], couples_D_1[0][1] = couples_D_1[0][1], couples_D_1[0][0]
 
     # если количество деталей в D_1 нечётно (одна пара пустая)
     # то в полупустую пару добавляется элемент из D_0 или D_2
@@ -103,20 +111,27 @@ def fourth_petrov(D_1: list[Job], D_2: list[Job],
             couples_D_2.append([D_2_sorted_p1[i], None])
 
     couples = [*couples_D_1, *couples_D_0, *couples_D_2]
-    print(couples)
-    # TODO: написать вклинивание
+
     # вклинивание остатка если таковой имеется
-    #if couples[-1][1] == None:
-    #    i_clin = 0
-    #    max_lmbd_i = 0
-    #    min_lmbd_i = couples[0][0].p_2 - couples[0][0].p_1
-    #    lmbd = couples[-1][0].p_2 - couples[-1][0].p_1 
-    #    for i in range(len(couples)-1):
-    #       lmbd_i = couples[i][0].p_2 - couples[i][0].p_1 
-    #       lmbd_i_next = couples[i+1].p_2 - couples[i+1].p_1 
-    #       if max_lmbd_i <= lmbd_i and min_lmbd_i >= lmbd_i_next \
-    #               and lmbd < max_lmbd_i and lmbd > min_lmbd_i:
-    #           i_clin = i
-    #           max_lmbd_i = lmbd_i
-    #           min_lmbd_i = lmbd_i_next
-               
+    if couples[-1][1] == None:
+        i_clin = 0
+        lmbd_clin = couples[-1][0].p_2 - couples[-1][0].p_1
+        for i in range(len(couples)-2):
+            lmbd_i = max(couples[i][0].p_2 - couples[i][0].p_1,
+                      couples[i][1].p_2 - couples[i][1].p_1)
+            lmbd_next_i = min(couples[i+1][0].p_2 - couples[i+1][0].p_1,
+                           couples[i+1][1].p_2 - couples[i+1][1].p_1)
+            if  lmbd_clin < lmbd_i and lmbd_clin > lmbd_next_i:
+                i_clin = i+1
+        # вклинивание элемента
+        couples.insert(i_clin, couples[-1])
+        couples.pop()
+
+    # избавление от парности
+    result = []
+    for coup in couples:
+        result.append(coup[0])
+        if coup[1] != None:
+            result.append(coup[1])
+
+    return result

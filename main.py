@@ -17,4 +17,10 @@ if __name__ == '__main__':
     # конвертация данных в более удобный вид c вычислением p_1 и p_2
     calc_jobs = list_to_jobs(matrix)
     petrov_schedule = petrov(jobs=calc_jobs)
+    first, second, third, fourth = petrov_schedule
+
+    print(f'first: {[job.index for job in first]}')
+    print(f'second: {[job.index for job in second]}')
+    print(f'third: {[job.index for job in third]}')
+    print(f'fourth: {[job.index for job in fourth]}')
 
